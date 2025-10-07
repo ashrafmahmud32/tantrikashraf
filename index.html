@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tantrik Ashraf — তান্ত্রিক আশরাফ</title>
+  <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="%23b22222"/><text x="50" y="60" font-size="44" text-anchor="middle" font-family="Poppins,Arial" font-weight="700" fill="%23ffd700">TA</text></svg>'>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Theme & layout ===== */
+    :root{ --bg:#061226; --panel:rgba(255,255,255,0.03); --gold:#ffd700; --accent:#7b2cff; --red:#e23b3b; }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Poppins, 'Baloo 2', Arial;color:#fff;background:radial-gradient(ellipse at 20% 10%, rgba(124,58,237,0.12), transparent 5%), linear-gradient(120deg,#04102a 0%, #061226 50%, #021018 100%);} 
+    /* allow scroll */
+    body{overflow:auto}
+
+    /* locked state: when not logged-in, blur main content and block interaction */
+    .locked .site-main{filter:blur(8px) saturate(.9);pointer-events:none;user-select:none}
+    .locked header{filter:blur(6px)}
+
+    header{position:sticky;top:0;z-index:50;background:linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.04));backdrop-filter:blur(6px);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .mark{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#ffb84d);display:flex;align-items:center;justify-content:center;color:#7b0f0f;font-weight:800}
+    .nav{display:flex;gap:8px;align-items:center}
+    .nav button{padding:8px 12px;border-radius:10px;border:none;background:transparent;color:var(--gold);cursor:pointer}
+
+    .site-main{display:flex;gap:20px;padding:22px;align-items:flex-start}
+    .left-col{flex:1;min-width:300px}
+    .right-col{width:420px;max-width:45%;min-width:260px}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:22px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.6);margin-bottom:18px}
+    .small{font-size:13px;color:#cfcfcf}
+
+    .big-buttons{display:flex;gap:18px}
+    .glow-btn{flex:1;padding:18px;border-radius:12px;text-align:center;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 6px 24px rgba(123,44,255,0.18);border:2px solid rgba(255,255,255,0.03);transition:transform .18s ease,box-shadow .18s ease}
+    .glow-btn:hover{transform:translateY(-6px);box-shadow:0 14px 34px rgba(123,44,255,0.28)}
+    .btn-mystic{background:linear-gradient(135deg,#071124, rgba(123,44,255,0.06));color:var(--gold)}
+    .btn-gold{background:linear-gradient(135deg,#08202a, rgba(255,215,0,0.05));color:var(--accent)}
+
+    .packages{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:10px}
+    .pkg{background:var(--panel);padding:14px;border-radius:12px;text-align:left;min-width:160px;transition:transform .18s ease,box-shadow .18s ease}
+
+    .reviews{display:flex;flex-direction:column;gap:10px}
+    .review{background:var(--panel);padding:12px;border-radius:10px;display:flex;justify-content:space-between;align-items:flex-start}
+    .review .meta{font-size:13px;color:#ddd}
+    .review .text{margin:8px 0}
+    .review .actions{display:flex;gap:8px;align-items:center}
+
+    .overlay{position:fixed;inset:0;background:rgba(2,2,10,0.6);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .popup{width:100%;max-width:720px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:28px;border-radius:16px;text-align:center;backdrop-filter:blur(6px);box-shadow:0 24px 60px rgba(0,0,0,0.7)}
+
+    #modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:10000}
+
+    @media(max-width:900px){.site-main{flex-direction:column;padding:12px}.right-col{width:100%;max-width:100%}.big-buttons{flex-direction:column}.packages{grid-template-columns:repeat(2,1fr)} }
+    @media(max-width:520px){.packages{grid-template-columns:repeat(1,1fr)}}
+
+    /* little visuals */
+    .rating-bubble{background:linear-gradient(90deg,var(--gold),#ffd87a);padding:8px 12px;border-radius:12px;color:#111;font-weight:800}
+    .buy{display:inline-block;margin-top:10px;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,var(--gold),#ffd87a);color:#111;font-weight:700;cursor:pointer;border:none}
+    .small-ghost{background:transparent;border:1px dashed rgba(255,255,255,0.06);padding:8px;border-radius:8px;color:#fff}
+    .wand-cursor{position:fixed;pointer-events:none;font-size:20px;transform:translate(-50%,-50%);z-index:20000}
+  </style>
+</head>
+<body>
+  <!-- ===== Overlay/login (pre-rendered) ===== -->
+  <div id="overlay" class="overlay" aria-hidden="true" style="display:none">
+    <div class="popup" role="dialog" aria-modal="true">
+      <h2 id="overlay-title">তান্ত্রিক আশরাফের রাজ্যে আপনাকে স্বাগতম</h2>
+      <p id="overlay-sub">এখানে তন্ত্রমন্ত্রের সাহায্যে অসম্ভব কে সম্ভব করা হয়।</p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:14px">
+        <button id="show-signup" class="glow-btn btn-mystic">🔮 Create Account</button>
+        <button id="show-login" class="glow-btn btn-gold">✨ Log In</button>
+      </div>
+      <div id="auth-forms" style="margin-top:18px"></div>
+      <div style="margin-top:12px;color:#ddd;font-size:13px">This site uses localStorage only — no backend. Your account is stored locally.</div>
+    </div>
+  </div>
+
+  <!-- site-header + content -->
+  <header>
+    <div class="logo"><div class="mark">TA</div><div><div style="font-weight:800">Tantrik Ashraf</div><div class="small">Funny mystical parody</div></div></div>
+    <nav class="nav">
+      <button id="goto-reviews">Customer Reviews</button>
+      <button id="open-chat">💬 Chat</button>
+      <div id="top-welcome" class="small" style="padding-left:8px"></div>
+    </nav>
+  </header>
+
+  <!-- main content wrapped so we can blur it easily by adding .locked to body -->
+  <div class="site-main">
+    <main style="flex:1;display:flex;gap:20px;padding:22px;align-items:flex-start">
+      <section class="left-col">
+        <div class="card">
+          <h2>Welcome to Tantrik Ashraf (fun parody)</h2>
+          <p class="small">A playful place that pretends to do the impossible. For entertainment only. Use common sense 😄</p>
+
+          <div class="big-buttons" style="margin-top:18px">
+            <div class="glow-btn btn-mystic" id="mind-btn">🧠 Read Your Mind</div>
+            <div class="glow-btn btn-gold" id="name-btn">🪞 Guess Your Name</div>
+          </div>
+
+          <div class="card" style="margin-top:18px">
+            <h3>Tantrik Ashraf Special Packages</h3>
+            <div class="packages" id="packages">
+              <div class="pkg" data-price="500" data-title="A+ in SSC"><div>📘 <span class="title">A+ in SSC</span></div><div class="desc">Guaranteed result with full Tantrik blessing</div><div class="price small">500৳</div><button class="buy" data-pkg="A+ in SSC">Buy Appointment</button></div>
+              <div class="pkg" data-price="1000" data-title="A+ in HSC"><div>📗 <span class="title">A+ in HSC</span></div><div class="desc">Includes bonus magic dust for confidence</div><div class="price small">1000৳</div><button class="buy" data-pkg="A+ in HSC">Buy Appointment</button></div>
+              <div class="pkg" data-price="1500" data-title="Public University Admission"><div>🎓 <span class="title">Public University Admission</span></div><div class="desc">Unlock your destiny</div><div class="price small">1500৳</div><button class="buy" data-pkg="Public University Admission">Buy Appointment</button></div>
+              <div class="pkg" data-price="10000" data-title="Marry Your Crush"><div>💘 <span class="title">Marry Your Crush</span></div><div class="desc">Works 99.9% of the time (if you send 10000৳)</div><div class="price small">10000৳</div><button class="buy" data-pkg="Marry Your Crush">Buy Appointment</button></div>
+            </div>
+          </div>
+
+          <!-- modal container used for many popups -->
+          <div id="modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:10000">
+            <div class="popup" id="modal-box" style="max-width:520px"></div>
+          </div>
+        </div>
+
+        <!-- Reviews section -->
+        <div class="card" id="reviews-section">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h3>Customer Reviews</h3>
+              <div class="small">What our (very theatrical) customers say</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="rating-bubble" id="overall-rating">⭐ 0.0</div>
+              <div class="small" id="review-count">0 reviews</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <div id="inline-review-form" style="display:block;margin-bottom:12px">
+              <div class="small">Write a review (must be logged in):</div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <input id="rv-text" placeholder="Share your experience..." style="flex:1">
+                <select id="rv-stars"><option value="5">5 ⭐</option><option value="4">4 ⭐</option><option value="3">3 ⭐</option><option value="2">2 ⭐</option><option value="1">1 ⭐</option></select>
+                <button id="rv-submit" class="buy">Submit</button>
+              </div>
+            </div>
+
+            <div id="reviews-list" class="reviews"></div>
+            <div style="text-align:center;margin-top:8px"><button id="load-more" class="small-ghost">Load more</button></div>
+          </div>
+        </div>
+
+      </section>
+
+      <aside class="right-col">
+        <div class="card">
+          <h4>Contact & Support</h4>
+          <div class="small">📞 Phone: 01887359075</div>
+          <div class="small">📧 Email: mahmudashraf412@gmail.com</div>
+          <div class="small">📍 Majortila, Sylhet</div>
+          <div style="margin-top:8px"><button id="call-support" class="buy">📞 Call Customer Care</button> <button id="whatsapp-support" class="buy">💬 Chat on WhatsApp</button></div>
+        </div>
+
+        <div class="card">
+          <h4>Mini Chat</h4>
+          <div id="chat-log" style="max-height:180px;overflow:auto;padding:6px;background:transparent;border-radius:8px"></div>
+          <div style="display:flex;gap:6px;margin-top:8px"><input id="chat-input" placeholder="Type..." style="flex:1"><button id="chat-send" class="buy">Send</button></div>
+        </div>
+
+        <div class="card">
+          <h4>Easter Egg</h4>
+          <div class="small">Open the browser console and type <code>ashrafpower</code> to unlock a surprise 😉</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <footer class="card" style="margin:12px 22px;display:flex;justify-content:space-between;align-items:center">
+    <div class="small">© Tantrik Ashraf • Entertainment parody — Not real spiritual services</div>
+    <div><button class="small-ghost" id="top-btn">Back to top</button></div>
+  </footer>
+
+  <div class="wand-cursor" id="wand">✨</div>
+
+  <script>
+    /* ==================================================
+       Tantrik Ashraf — Single HTML app
+       This version fixes:
+         - Blurring/lock of main content until user logs in
+         - Sign Up / Log In UI and Create Account flow
+         - All buttons wired using event listeners
+         - Reviews: like, dislike, comment, overall rating, review count
+         - Buy Appointment modal and price auto-update
+       Storage: localStorage keys:
+         - tan_user -> {name, pass}
+         - tan_reviews -> [ ...reviews ]
+       ================================================== */
+
+    // Simple selector helpers
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+
+    // localStorage helpers
+    const USER_KEY = 'tan_user';
+    const REV_KEY = 'tan_reviews';
+
+    function saveUser(u){ localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+    function getUser(){ try { return JSON.parse(localStorage.getItem(USER_KEY)||'null'); } catch(e){ return null; } }
+    function saveReviews(r){ localStorage.setItem(REV_KEY, JSON.stringify(r)); }
+    function getReviews(){ try { return JSON.parse(localStorage.getItem(REV_KEY)||'[]'); } catch(e){ return []; } }
+
+    // seed reviews if none
+    const seed = [
+      {stars:5,text:'Bro it actually worked! I got A+ 😂',name:'rakib',email:'rakib*@gmail.com',likes:12,dislikes:0,comments:2},
+      {stars:4,text:'My crush waved at me. Coincidence? I don\'t think so 😏',name:'mahmuda',email:'mahmuda*@gmail.com',likes:7,dislikes:1,comments:1},
+      {stars:5,text:'Best Tantrik in town! Even my Wi-Fi started working.',name:'shuvo',email:'shuvo*@gmail.com',likes:9,dislikes:0,comments:0},
+      {stars:4,text:'Didn\'t get A+, but got motivation 😭',name:'tisha',email:'tisha*@gmail.com',likes:4,dislikes:1,comments:0},
+      {stars:5,text:'I sent 1000৳ for fun, and it was worth it lol',name:'farhan',email:'farhan*@gmail.com',likes:15,dislikes:0,comments:3},
+      {stars:5,text:'Tantrik bhai is real magician 🔥',name:'ayesha',email:'ayesha*@gmail.com',likes:10,dislikes:0,comments:0},
+      {stars:4,text:'My parents think I\'m studying now. Thanks 😂',name:'rahat',email:'rahat*@gmail.com',likes:2,dislikes:0,comments:0},
+      {stars:5,text:'Fastest magic delivery ever.',name:'nusaibah',email:'nusaibah*@gmail.com',likes:6,dislikes:0,comments:0},
+      {stars:4,text:'Still waiting for my crush to text, but faith is strong 💪',name:'shanto',email:'shanto*@gmail.com',likes:1,dislikes:0,comments:0},
+      {stars:5,text:'10/10 entertainment value.',name:'meem',email:'meem*@gmail.com',likes:8,dislikes:0,comments:1}
+    ];
+    if(!localStorage.getItem(REV_KEY)) saveReviews(seed);
+
+    // ------------------ Overlay + lock handling ------------------
+    const overlay = $('#overlay');
+    const body = document.body;
+
+    function setOverlayText(){
+      const lang = navigator.language || 'en';
+      if(lang.includes('bn')){
+        $('#overlay-title').textContent = 'তান্ত্রিক আশরাফের রাজ্যে আপনাকে স্বাগতম';
+        $('#overlay-sub').textContent = 'এখানে তন্ত্রমন্ত্রের সাহায্যে অসম্ভব কে সম্ভব করা হয়।';
+      } else {
+        $('#overlay-title').textContent = 'Welcome to the kingdom of Tantrik Ashraf!';
+        $('#overlay-sub').textContent = 'Here we make the impossible possible through ancient magic!';
+      }
+    }
+
+    function showOverlay(){ overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden', 'false'); body.classList.add('locked'); }
+    function hideOverlay(){ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden', 'true'); body.classList.remove('locked'); }
+
+    // ------------------ Auth (signup/login) ------------------
+    function showSignupForm(){ const f = $('#auth-forms'); f.innerHTML = `
+      <div class="form">
+        <input id="su-name" placeholder="Name">
+        <input id="su-pass" placeholder="Password" type="password">
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+          <button id="su-create" class="buy">Create Account</button>
+          <button id="su-cancel" class="small-ghost">Cancel</button>
+        </div>
+      </div>`;
+      $('#su-create').onclick = ()=>{
+        const name = $('#su-name').value.trim(); const pass = $('#su-pass').value;
+        if(!name || !pass){ alert('Please fill name & password'); return; }
+        saveUser({name,pass}); afterLogin(name);
+      };
+      $('#su-cancel').onclick = ()=>{ $('#auth-forms').innerHTML = ''; };
+    }
+
+    function showLoginForm(){ const f = $('#auth-forms'); f.innerHTML = `
+      <div class="form">
+        <input id="li-name" placeholder="Name">
+        <input id="li-pass" placeholder="Password" type="password">
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+          <button id="li-do" class="buy">Log In</button>
+          <button id="li-cancel" class="small-ghost">Cancel</button>
+        </div>
+      </div>`;
+      $('#li-do').onclick = ()=>{ const name = $('#li-name').value.trim(); const pass = $('#li-pass').value; const u = getUser(); if(u && u.name===name && u.pass===pass){ afterLogin(name); } else { alert('Invalid credentials. Sign up first if you don\'t have an account.'); } };
+      $('#li-cancel').onclick = ()=>{ $('#auth-forms').innerHTML = ''; };
+    }
+
+    function afterLogin(name){ // Called after signup or login success
+      hideOverlay(); $('#top-welcome').textContent = `Welcome, ${name}!`;
+      const u = getUser() || {}; u.name = name; saveUser(u);
+    }
+
+    // ------------------ Modal helpers ------------------
+    function showModal(html){ $('#modal').style.display = 'flex'; $('#modal-box').innerHTML = html + '<div style="text-align:center;margin-top:10px"><button id="modal-close" class="small-ghost">Close</button></div>'; $('#modal-close').onclick = closeModal; }
+    function closeModal(){ $('#modal').style.display = 'none'; }
+
+    // ------------------ Read Your Mind / Guess Name ------------------
+    function initMind(){ $('#mind-btn').onclick = ()=>{
+      showModal(`<h3>Read Your Mind</h3><p>Enter a number between 1–100 and I\'ll read your thoughts 🔮</p><div class="form"><input id="mind-input" placeholder="1-100" type="number" min="1" max="100"><div style=\"display:flex;gap:8px;justify-content:center;margin-top:8px\"><button id=\"mind-ok\" class=\"buy\">Submit</button><button id=\"mind-c\" class=\"small-ghost\">Cancel</button></div></div>`);
+      $('#mind-ok').onclick = ()=>{ const n = Number($('#mind-input').value); if(!n || n<1 || n>100){ alert('Choose 1-100'); return } playMindSequence(n); };
+      $('#mind-c').onclick = closeModal;
+    } };
+    function playMindSequence(num){ const msgs = ['Calculating your brain frequency…','Searching the internet…','Doing impossible mathematics…','Becoming Albert Einstein…','Kindly wait…']; showModal(`<h3>Reading...</h3><div id="mind-anim" style="min-height:120px"></div>`); let i=0; function step(){ const el = document.getElementById('mind-anim'); if(i<msgs.length){ el.innerHTML += `<div class="small">${msgs[i]}</div>`; i++; setTimeout(step,1000);} else { el.innerHTML += `<h3>"You were thinking about number ${num}! 😎✨"</h3><div class=\"small\">My powers never lie!</div><div style=\"text-align:center;margin-top:10px\"><button id=\"try-ag\" class=\"buy\">Try Again</button></div>`; document.getElementById('try-ag').onclick = ()=>{ closeModal(); document.getElementById('mind-btn').click(); } } } setTimeout(step,800); }
+
+    function initGuess(){ $('#name-btn').onclick = ()=>{ const u = getUser(); const name = u?.name || 'Friend'; showModal(`<h3>Your name is… ${name}! 😂✨</h3><div class=\"small\">See? My powers never fail!</div>`); }; }
+
+    // ------------------ Buy Appointment ------------------
+    function openBuy(pkg){ // show buy modal and wire submit
+      showModal(`<h3>Buy Appointment</h3>
+        <form id="buy-form" class="form">
+          <label>Full Name <input id="bf-name" required></label>
+          <label>Package <select id="bf-package"><option>A+ in SSC</option><option>A+ in HSC</option><option>Public University Admission</option><option>Marry Your Crush</option></select></label>
+          <div>Price: <span id="bf-price">500</span>৳</div>
+          <label>Preferred Date &amp; Time <input id="bf-datetime" type="datetime-local" required></label>
+          <label>Payment Method <select id="bf-pay"><option>bKash</option><option>Nagad</option></select></label>
+          <div style="display:flex;gap:8px;margin-top:10px"><button type="submit" class="buy">Submit</button><button type="button" id="bf-cancel" class="small-ghost">Cancel</button></div>
+        </form>`);
+      const user = getUser(); $('#bf-name').value = user?.name || ''; if(pkg) $('#bf-package').value = pkg; $('#bf-package').onchange = ()=>{ const p = $('#bf-package').value; const el = $$('.pkg').find(x=>x.dataset.title===p); $('#bf-price').textContent = el ? el.dataset.price : '500'; };
+      $('#bf-cancel').onclick = closeModal; $('#buy-form').onsubmit = (e)=>{ e.preventDefault(); const amt = $('#bf-price').textContent; closeModal(); alert(`Please send ${amt}৳ to our number to confirm your booking.
+bKash/Nagad Number: 01887359075
+We\'ll confirm within 24 hours.`); };
+    }
+
+    // attach buy buttons using event delegation for robustness
+    function initBuyButtons(){ document.addEventListener('click', (ev)=>{ const btn = ev.target.closest('[data-pkg]'); if(btn && btn.dataset && btn.dataset.pkg){ openBuy(btn.dataset.pkg); } }); }
+
+    // ------------------ Reviews ------------------
+    function computeStats(list){ const total = list.length; const sum = list.reduce((s,r)=>s+(r.stars||0),0); const avg = total? (sum/total):0; return {total,avg}; }
+
+    function renderReviews(){ const list = getReviews(); const container = $('#reviews-list'); container.innerHTML = ''; const {total,avg} = computeStats(list); $('#overall-rating').textContent = `⭐ ${avg.toFixed(1)}`; $('#review-count').textContent = `${total} review${total!==1?'s':''}`;
+      list.forEach((r,idx)=>{
+        const div = document.createElement('div'); div.className='review'; div.dataset.idx = idx;
+        div.innerHTML = `<div style='flex:1'><div class=\"meta\">${'⭐'.repeat(r.stars)} &nbsp; <strong>${r.name}</strong> • <span class=\"small\">${r.email}</span></div><div class=\"text\">${r.text}</div><div class=\"small\">👍 <span class=\"like-count\">${r.likes||0}</span> • 👎 <span class=\"dislike-count\">${r.dislikes||0}</span> • 💬 ${r.comments||0}</div></div><div class=\"actions\"><button class=\"rv-like\">👍</button><button class=\"rv-dislike\">👎</button><button class=\"rv-comment\">💭</button></div>`;
+        container.appendChild(div);
+        div.querySelector('.rv-like').onclick = ()=>{ modifyReview(idx,'like'); };
+        div.querySelector('.rv-dislike').onclick = ()=>{ modifyReview(idx,'dislike'); };
+        div.querySelector('.rv-comment').onclick = ()=>{ const t = prompt('Write a short comment'); if(t) modifyReview(idx,'comment',t); };
+      });
+    }
+
+    function modifyReview(i, action, text){ const list = getReviews(); if(!list[i]) return; const r = list[i]; if(action==='like') r.likes = (r.likes||0)+1; if(action==='dislike') r.dislikes = (r.dislikes||0)+1; if(action==='comment'){ r.comments = (r.comments||0)+1; r.lastComment = text; } saveReviews(list); renderReviews(); }
+
+    // inline submit
+    function initInlineReview(){ $('#rv-submit').onclick = ()=>{ const u = getUser(); if(!u?.name){ alert('Please login to write a review'); return; } const text = $('#rv-text').value.trim(); const stars = Number($('#rv-stars').value)||5; if(!text){ alert('Write something!'); return; } const list = getReviews(); list.unshift({stars,text,name:u.name,email:u.name+'*@gmail.com',likes:0,dislikes:0,comments:0}); saveReviews(list); $('#rv-text').value=''; renderReviews(); document.getElementById('reviews-section').scrollIntoView({behavior:'smooth'}); } }
+
+    // ------------------ small features ------------------
+    function initSupport(){ $('#call-support').onclick = ()=>{ window.location.href = 'tel:01887359075'; }; $('#whatsapp-support').onclick = ()=>{ window.open('https://wa.me/8801887359075','_blank'); }; $('#open-chat').onclick = ()=>{ const log = $('#chat-log'); const u = getUser(); log.innerHTML = `<div class=\"small\">Welcome, ${u?.name||'Friend'}! Tantrik Ashraf is online 🔮✨</div>`; }; $('#chat-send').onclick = ()=>{ const txt = $('#chat-input').value.trim(); if(!txt) return; const log = $('#chat-log'); log.innerHTML += `<div style=\"margin-top:6px\"><b>You:</b> ${txt}</div>`; log.innerHTML += `<div class=\"small\" style=\"margin-top:6px\"><b>Tantrik Ashraf:</b> I sense your energy... (this is simulated)</div>`; $('#chat-input').value=''; log.scrollTop = log.scrollHeight; }; }
+
+    function initNav(){ $('#goto-reviews').onclick = ()=>{ document.getElementById('reviews-section').scrollIntoView({behavior:'smooth'}); }; $('#top-btn').onclick = ()=>{ window.scrollTo({top:0,behavior:'smooth'}); } }
+
+    // wand + sparkle cosmetic
+    function initCosmetics(){ const wand = $('#wand'); document.addEventListener('mousemove', e=>{ wand.style.left = (e.clientX+12)+'px'; wand.style.top = (e.clientY+12)+'px'; }); document.addEventListener('click', e=>{ const s = document.createElement('div'); s.className='sparkle'; s.style.left = e.clientX+'px'; s.style.top = e.clientY+'px'; document.body.appendChild(s); setTimeout(()=>s.remove(),900); }); }
+
+    // easter egg
+    Object.defineProperty(window, 'ashrafpower', {get(){ alert('🔥 You have unlocked Ultra Tantrik Mode 🔥'); return 'unlocked'; }});
+
+    // ------------------ init on DOM ready ------------------
+    document.addEventListener('DOMContentLoaded', ()=>{
+      setOverlayText();
+
+      // if user exists, hide overlay & remove blur; otherwise show overlay and lock
+      const u = getUser(); if(u && u.name){ $('#top-welcome').textContent = `Welcome, ${u.name}!`; hideOverlay(); } else { showOverlay(); }
+
+      // wire auth buttons
+      $('#show-signup').onclick = showSignupForm; $('#show-login').onclick = showLoginForm;
+
+      // init features
+      initMind(); initGuess(); initBuyButtons(); initBuyButtons(); initInlineReview(); initSupport(); initNav(); initCosmetics();
+
+      // attach a global listener for buy buttons in case DOM changes
+      document.querySelectorAll('.pkg .buy').forEach(b=> b.addEventListener('click', e=>{ openBuy(e.target.dataset.pkg); }));
+
+      // initial render of reviews
+      renderReviews();
+
+      console.log('Tantrik Ashraf initialized.');
+    });
+
+  </script>
+</body>
+</html>
+
+
